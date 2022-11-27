@@ -9,8 +9,10 @@ public class AudioManager : MonoBehaviour
 {
     // Speaker
     public GameObject speaker;
+    public GameObject speakerSFX;
 
-    private Speaker _speakerScript = new Speaker();
+    private Speaker _speakerScript;
+    private Speaker _speakerSFXScript;
     // Audio players components.
     public AudioSource EffectsSource;
     public AudioSource MusicSource;
@@ -39,6 +41,7 @@ public class AudioManager : MonoBehaviour
         DontDestroyOnLoad (gameObject);
 
         _speakerScript = speaker.GetComponent<Speaker>();
+        _speakerSFXScript = speakerSFX.GetComponent<Speaker>();
         // Load sound config
         SoundSettingModel soundConfig = SoundSettingModel.LoadData();
         this.SetEffectVolume(soundConfig.effectVolume);
@@ -71,12 +74,12 @@ public class AudioManager : MonoBehaviour
     public void SetEffectVolume(Single value)
     {
         EffectsSource.volume = value;
+        _speakerSFXScript.HandleRenderSpeakerButton(value > 0);
         this.SaveAudioConfigLocal();
     }
     
     public void SetMusicVolume(Single value)
     {
-        Debug.Log(value);
         MusicSource.volume = value;
         _speakerScript.HandleRenderSpeakerButton(value > 0);
         this.SaveAudioConfigLocal();
