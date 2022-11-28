@@ -54,17 +54,17 @@ public class AudioManager : MonoBehaviour
         // INIT effect source
         for (int i = 0; i < EFFECT_SOURCE_COUNT; i++)
         {
-            // GameObject effectSource = Instantiate(effectAudioPrefab);
-            // effectSource.gameObject.name = "EffectSource" + i;
-            // effectSource.SetActive(true);
+            GameObject effectSource = Instantiate(effectAudioPrefab);
+            effectSource.gameObject.name = "EffectSource" + i;
+            effectSource.SetActive(true);
             
-            GameObject effectSource = new GameObject();
-            effectSource.name = "EffectSource" + i;
-            AudioSource audioSource = effectSource.AddComponent<AudioSource>();
-            audioSource.playOnAwake = false;
-            audioSource.loop = false;
+            // GameObject effectSource = new GameObject();
+            // effectSource.name = "EffectSource" + i;
+            // AudioSource audioSource = effectSource.AddComponent<AudioSource>();
+            // audioSource.playOnAwake = false;
+            // audioSource.loop = false;
             DontDestroyOnLoad(effectSource);
-
+            
             AudioSource effectSourceAudio = effectSource.GetComponent<AudioSource>();
             _effectsSources.Add(effectSourceAudio);
         }
