@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -14,7 +15,7 @@ public class AudioManager : MonoBehaviour
     private Speaker _speakerScript;
     private Speaker _speakerSFXScript;
     // Audio players components.
-    public AudioSource EffectsSource;
+    public GameObject effectAudioPrefab;
     public AudioSource MusicSource;
     // Random pitch adjustment range.
     public float LowPitchRange = .95f;
@@ -23,6 +24,9 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance = null;
     private float oldEffectVolume = 1f;
     private float oldMusicVolume = 1f;
+
+    public List<AudioSource> _effectsSources = new List<AudioSource>();
+    private const int EFFECT_SOURCE_COUNT = 5;
 	
     // Initialize the singleton instance.
     private void Awake()
@@ -42,18 +46,47 @@ public class AudioManager : MonoBehaviour
 
         _speakerScript = speaker.GetComponent<Speaker>();
         _speakerSFXScript = speakerSFX.GetComponent<Speaker>();
+    }
+
+    private void Start()
+    {
+        
+        // INIT effect source
+        for (int i = 0; i < EFFECT_SOURCE_COUNT; i++)
+        {
+            // GameObject effectSource = Instantiate(effectAudioPrefab);
+            // effectSource.gameObject.name = "EffectSource" + i;
+            // effectSource.SetActive(true);
+            
+            GameObject effectSource = new GameObject();
+            effectSource.name = "EffectSource" + i;
+            AudioSource audioSource = effectSource.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+            DontDestroyOnLoad(effectSource);
+
+            AudioSource effectSourceAudio = effectSource.GetComponent<AudioSource>();
+            _effectsSources.Add(effectSourceAudio);
+        }
+        
         // Load sound config
         SoundSettingModel soundConfig = SoundSettingModel.LoadData();
         this.SetEffectVolume(soundConfig.effectVolume);
         this.SetMusicVolume(soundConfig.musicVolume);
     }
+
     // Play a single clip through the sound effects source.
     public void Play(AudioClip clip)
     {
-        // TODO: change to create new obj to play audio (for supporting multiple audio in one time)
-        EffectsSource.clip = clip;
-        EffectsSource.Play();
+        // get free sfxSource
+        foreach (var source in _effectsSources.Where(source => !source.isPlaying))
+        {
+            source.clip = clip;
+            source.Play();
+            return;
+        }
     }
+    
     // Play a single clip through the music source.
     public void PlayMusic(AudioClip clip)
     {
@@ -62,18 +95,13 @@ public class AudioManager : MonoBehaviour
         
     }
     // Play a random clip from an array, and randomize the pitch slightly.
-    public void RandomSoundEffect(params AudioClip[] clips)
-    {
-        int randomIndex = Random.Range(0, clips.Length);
-        float randomPitch = Random.Range(LowPitchRange, HighPitchRange);
-        EffectsSource.pitch = randomPitch;
-        EffectsSource.clip = clips[randomIndex];
-        EffectsSource.Play();
-    }
 	
     public void SetEffectVolume(Single value)
     {
-        EffectsSource.volume = value;
+        foreach (var source in _effectsSources)
+        {
+            source.volume = value;
+        }
         _speakerSFXScript.HandleRenderSpeakerButton(value > 0);
         this.SaveAudioConfigLocal();
     }
@@ -87,9 +115,10 @@ public class AudioManager : MonoBehaviour
 
     public void ToggleEffectSound()
     {
-        if (EffectsSource.volume > 0)
+        Debug.Log(_effectsSources);
+        if (_effectsSources.ElementAt(0).volume > 0)
         {
-            oldEffectVolume = EffectsSource.volume;
+            oldEffectVolume = _effectsSources.ElementAt(0).volume;
             this.SetEffectVolume(0);
             return;
         }
@@ -111,6 +140,11 @@ public class AudioManager : MonoBehaviour
 
     private void SaveAudioConfigLocal()
     {
-        new SoundSettingModel(MusicSource.volume, EffectsSource.volume).Save();
+        foreach (var item in _effectsSources)
+        {
+            Debug.Log(item.ToString());
+        }
+
+        new SoundSettingModel(MusicSource.volume, _effectsSources.ElementAt(0).volume).Save();
     }
 }
