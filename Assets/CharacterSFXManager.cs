@@ -11,7 +11,17 @@ public class CharacterSFXManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        KeyCode oneKey;
+        try
+        {
+            oneKey = KeyboardManager.Instance.GetKeyOfType(KeyboardGameType.ONE);
+        }
+        catch
+        {
+            throw new KeyNotFoundException();
+        }
+        
+        if (Input.GetKeyDown(oneKey))
         {
             audio.Play(clip);
         }

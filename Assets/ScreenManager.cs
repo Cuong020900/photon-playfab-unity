@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ScreenManager : MonoBehaviour
 {
@@ -41,5 +42,10 @@ public class ScreenManager : MonoBehaviour
     {
         settingObj.SetActive(false);
         mainScreenObj.SetActive(true);
+    }
+
+    public void GoToSetting02()
+    {
+        SceneManager.LoadScene("Setting02");
     }
 }
