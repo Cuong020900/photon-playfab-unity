@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class CharacterSFXManager : MonoBehaviour
 {
-    public AudioManager audio;
-
     public AudioClip clip;
     
     // Update is called once per frame
@@ -23,7 +21,7 @@ public class CharacterSFXManager : MonoBehaviour
         
         if (Input.GetKeyDown(oneKey))
         {
-            audio.Play(clip);
+            AudioManager.Instance.Play(clip);
         }
     }
 }
